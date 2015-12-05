@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Siso Bus Tracker</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="no_gps">GPS is disabled. Do you want to enable it. GPS will help in getting better accuracy.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+</resources>
