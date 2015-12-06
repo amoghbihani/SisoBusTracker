@@ -28,9 +28,9 @@ public class BusLocationHandler extends JsonRequestHandler {
         requestJSONObject(mGetUrl);
     }
 
-    public void sendBusLocation(int routeNumber, Location location) {
+    public void sendBusLocation(String routeNumber, Location location) {
         Map<String, String> request = new HashMap<String, String>();
-        request.put("RouteNumber", String.valueOf(routeNumber));
+        request.put("RouteNumber", routeNumber);
         request.put("Latitude", String.valueOf(location.getLatitude()));
         request.put("Longitude", String.valueOf(location.getLongitude()));
         sendJsonObject(mPostUrl, new JSONObject(request));

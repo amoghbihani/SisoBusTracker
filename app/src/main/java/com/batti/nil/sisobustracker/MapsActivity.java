@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.android.volley.VolleyError;
+import com.batti.nil.sisobustracker.common.MathUtils;
 import com.batti.nil.sisobustracker.location.BusLocationHandler;
 import com.batti.nil.sisobustracker.location.BusLocationHandlerClient;
 import com.batti.nil.sisobustracker.location.UserLocationHandler;
@@ -21,6 +22,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MapsActivity extends FragmentActivity {
@@ -30,6 +32,8 @@ public class MapsActivity extends FragmentActivity {
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private UserLocationHandler mUserLocationHandler;
     private BusLocationHandler mBusLocationHandler;
+    private String mRouteNumber = "9"; // TODO: add logic to take user input.
+    private boolean mIsWaiting = true;
 
     private Marker mUserMarker;
     private Marker mOfficeMarker;
@@ -62,11 +66,11 @@ public class MapsActivity extends FragmentActivity {
                     .position(OFFICE)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.office_building)));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(OFFICE, 15));
-            updateCurrentLocation(mUserLocationHandler.getCurrentLocation());
+            updateUserLocation(mUserLocationHandler.getCurrentLocation());
         }
     }
 
-    private void updateCurrentLocation(Location location) {
+    private void updateUserLocation(Location location) {
         if (location == null) {
             Log.d(TAG, "Location not available yet");
             return;
@@ -92,14 +96,55 @@ public class MapsActivity extends FragmentActivity {
         } else {
             mUserMarker.setPosition(latLng);
         }
+
+        if (!mIsWaiting) {
+            mBusLocationHandler.sendBusLocation(mRouteNumber, location);
+        }
+    }
+
+    private void updateBusLocation(Location location) {
+        if (location == null) {
+            Log.d(TAG, "Location not available yet");
+            return;
+        }
+        if (mMap == null) {
+            Log.d(TAG, "Map not available yet");
+            return;
+        }
+
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        if (mBusMarker == null) {
+            mBusMarker = mMap.addMarker(new MarkerOptions()
+                    .position(latLng)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
+            Location officeLocation = new Location("office");
+            officeLocation.setLatitude(OFFICE.latitude);
+            officeLocation.setLongitude(OFFICE.longitude);
+            Point size = new Point();
+            getWindowManager().getDefaultDisplay().getSize(size);
+            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(
+                    getMapBounds(officeLocation, location),
+                    size.x - 50, size.y - 100, 10));
+        } else {
+            mBusMarker.setPosition(latLng);
+        }
     }
 
     private LatLngBounds getMapBounds(Location loc1, Location loc2) {
         double north, east, west, south;
-        north = Math.max(loc1.getLatitude(), loc2.getLatitude());
-        south = Math.min(loc1.getLatitude(), loc2.getLatitude());
-        east = Math.max(loc1.getLongitude(), loc2.getLongitude());
-        west = Math.min(loc1.getLongitude(), loc2.getLongitude());
+        north = MathUtils.max(loc1.getLatitude(), loc2.getLatitude());
+        south = MathUtils.min(loc1.getLatitude(), loc2.getLatitude());
+        east = MathUtils.max(loc1.getLongitude(), loc2.getLongitude());
+        west = MathUtils.min(loc1.getLongitude(), loc2.getLongitude());
+        return new LatLngBounds(new LatLng(south, west), new LatLng(north, east));
+    }
+
+    private LatLngBounds getMapBounds(Location loc1, Location loc2, Location loc3) {
+        double north, east, west, south;
+        north = MathUtils.max(loc1.getLatitude(), loc2.getLatitude(), loc3.getLatitude());
+        south = MathUtils.min(loc1.getLatitude(), loc2.getLatitude(), loc3.getLatitude());
+        east = MathUtils.max(loc1.getLongitude(), loc2.getLongitude(), loc3.getLongitude());
+        west = MathUtils.min(loc1.getLongitude(), loc2.getLongitude(), loc3.getLongitude());
         return new LatLngBounds(new LatLng(south, west), new LatLng(north, east));
     }
 
@@ -116,7 +161,7 @@ public class MapsActivity extends FragmentActivity {
         public void onLocationChanged(Location location) {
             Log.d(TAG, "onLocationChanged " + location.getLatitude()
                     + " " + location.getLongitude());
-            updateCurrentLocation(location);
+            updateUserLocation(location);
         }
     }
 
@@ -124,6 +169,16 @@ public class MapsActivity extends FragmentActivity {
         @Override
         public void onResponseReceived(JSONObject object) {
             Log.d(TAG, "onResponseReceived");
+            if (object == null) return;
+            Location location = new Location("bus location");
+            try {
+                location.setLatitude(object.getDouble("Latitude"));
+                location.setLongitude(object.getDouble("Longitude"));
+            } catch (JSONException e) {
+                Log.e(TAG, "JSON parsing exception " + e);
+                return;
+            }
+            updateBusLocation(location);
         }
 
         @Override
