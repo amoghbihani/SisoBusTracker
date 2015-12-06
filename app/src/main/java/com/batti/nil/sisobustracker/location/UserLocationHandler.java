@@ -11,20 +11,20 @@ import android.provider.Settings;
 
 import com.batti.nil.sisobustracker.R;
 
-public class LocationHandler {
-    private static final String TAG = "LocationHandler";
+public class UserLocationHandler {
+    private static final String TAG = "UserLocationHandler";
 
     private Context mContext;
     private LocationManager mLocationManager;
 
-    public LocationHandler(Context context, LocationHandlerClient client) {
+    public UserLocationHandler(Context context, UserLocationHandlerClient client) {
         mContext = context;
         mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         if (!isLocationEnabled()) {
             createNoLocationAlert();
         }
         mLocationManager.requestLocationUpdates(
-                getBestLocationProvider(), 2 * 1000, 10, new LocationListenerImpl(client));
+                getBestLocationProvider(), 2 * 1000, 10, new UserLocationListener(client));
     }
 
     public Location getCurrentLocation() {

@@ -3,9 +3,7 @@ package com.batti.nil.sisobustracker.location;
 import android.location.Location;
 import android.os.Bundle;
 
-public abstract class LocationHandlerClient {
-    public static final String TAG = "LocationHandlerClient";
-
+public abstract class UserLocationHandlerClient {
     public void onLocationChanged(Location location) { }
 
     public void onProviderDisabled(String provider) { }

@@ -7,8 +7,11 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.batti.nil.sisobustracker.location.LocationHandler;
-import com.batti.nil.sisobustracker.location.LocationHandlerClient;
+import com.android.volley.VolleyError;
+import com.batti.nil.sisobustracker.location.BusLocationHandler;
+import com.batti.nil.sisobustracker.location.BusLocationHandlerClient;
+import com.batti.nil.sisobustracker.location.UserLocationHandler;
+import com.batti.nil.sisobustracker.location.UserLocationHandlerClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -18,12 +21,15 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONObject;
+
 public class MapsActivity extends FragmentActivity {
     private static final String TAG = "MapsActivity";
 
     private static final LatLng OFFICE = new LatLng(12.980113, 77.696481);
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private LocationHandler mLocationHandler;
+    private UserLocationHandler mUserLocationHandler;
+    private BusLocationHandler mBusLocationHandler;
 
     private Marker mUserMarker;
     private Marker mOfficeMarker;
@@ -33,7 +39,8 @@ public class MapsActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        mLocationHandler = new LocationHandler(this, new LocationHandlerClientImpl());
+        mUserLocationHandler = new UserLocationHandler(this, new UserLocationHandlerClientImpl());
+        mBusLocationHandler = new BusLocationHandler(this, new BusLocationHandlerClientImpl());
         setUpMapIfNeeded();
         addUIElements();
     }
@@ -55,7 +62,7 @@ public class MapsActivity extends FragmentActivity {
                     .position(OFFICE)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.office_building)));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(OFFICE, 15));
-            updateCurrentLocation(mLocationHandler.getCurrentLocation());
+            updateCurrentLocation(mUserLocationHandler.getCurrentLocation());
         }
     }
 
@@ -104,17 +111,29 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
-    private class LocationHandlerClientImpl extends LocationHandlerClient {
+    private class UserLocationHandlerClientImpl extends UserLocationHandlerClient {
         @Override
         public void onLocationChanged(Location location) {
             Log.d(TAG, "onLocationChanged " + location.getLatitude()
                     + " " + location.getLongitude());
             updateCurrentLocation(location);
         }
+    }
+
+    private class BusLocationHandlerClientImpl extends BusLocationHandlerClient {
+        @Override
+        public void onResponseReceived(JSONObject object) {
+            Log.d(TAG, "onResponseReceived");
+        }
 
         @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            Log.d(TAG, "onStatusChanged " + status);
+        public void onErrorReceivingResponse(VolleyError error) {
+            Log.d(TAG, "onErrorReceivingResponse");
+        }
+
+        @Override
+        public void onErrorSendingRequest(VolleyError error) {
+            Log.d(TAG, "onErrorSendingRequest");
         }
     }
 }

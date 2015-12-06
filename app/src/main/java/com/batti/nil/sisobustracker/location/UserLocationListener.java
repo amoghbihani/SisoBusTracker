@@ -5,12 +5,12 @@ import android.location.LocationListener;
 import android.os.Bundle;
 import android.util.Log;
 
-public class LocationListenerImpl implements LocationListener {
-    private static final String TAG = "LocationListenerImpl";
+public class UserLocationListener implements LocationListener {
+    private static final String TAG = "UserLocationListener";
 
-    private LocationHandlerClient mClient;
+    private UserLocationHandlerClient mClient;
 
-    public LocationListenerImpl(LocationHandlerClient client) {
+    public UserLocationListener(UserLocationHandlerClient client) {
         mClient = client;
     }
 

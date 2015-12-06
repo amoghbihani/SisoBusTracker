@@ -8,14 +8,14 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
-public class ResponseGetter {
-    public static final String TAG = "ResponseGetter";
+public class RequestHandler {
+    public static final String TAG = "RequestHandler";
 
     private static RequestQueue mRequestQueue;
     private static ImageLoader mImageLoader;
     private Context mContext;
 
-    public ResponseGetter(Context context) {
+    public RequestHandler(Context context) {
        mContext = context;
     }
 
