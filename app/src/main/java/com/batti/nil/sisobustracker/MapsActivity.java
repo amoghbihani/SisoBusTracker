@@ -2,8 +2,7 @@ package com.batti.nil.sisobustracker;
 
 import android.graphics.Point;
 import android.location.Location;
-import android.os.Handler;
-import android.os.Message;
+import android.os.Build;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +12,7 @@ import com.batti.nil.sisobustracker.location.LocationHandlerClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -29,24 +29,13 @@ public class MapsActivity extends FragmentActivity {
     private Marker mOfficeMarker;
     private Marker mBusMarker;
 
-    private int delay_1_sec = 1000;
-    private final int UPDATE_CORDINATES_FAKE = 1;
-    private Handler mHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case UPDATE_CORDINATES_FAKE:
-                    Location newLoc = new Location(location.getLa)
-                    updateCurrentLocation(location.);
-            }
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         mLocationHandler = new LocationHandler(this, new LocationHandlerClientImpl());
         setUpMapIfNeeded();
+        addUIElements();
     }
 
     @Override
@@ -63,7 +52,8 @@ public class MapsActivity extends FragmentActivity {
             if (mMap == null) return;
 
             mOfficeMarker = mMap.addMarker(new MarkerOptions()
-                                    .position(OFFICE));
+                    .position(OFFICE)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.office_building)));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(OFFICE, 15));
             updateCurrentLocation(mLocationHandler.getCurrentLocation());
         }
@@ -82,23 +72,36 @@ public class MapsActivity extends FragmentActivity {
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         if (mUserMarker == null) {
             mUserMarker = mMap.addMarker(new MarkerOptions()
-                                  .position(latLng));
+                    .position(latLng)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.user)));
+            Location officeLocation = new Location("office");
+            officeLocation.setLatitude(OFFICE.latitude);
+            officeLocation.setLongitude(OFFICE.longitude);
             Point size = new Point();
             getWindowManager().getDefaultDisplay().getSize(size);
             mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(
-                    getMapBounds(location), size.x - 50, size.y - 100, 10));
+                    getMapBounds(officeLocation, location),
+                    size.x - 50, size.y - 100, 10));
         } else {
             mUserMarker.setPosition(latLng);
         }
     }
 
-    private LatLngBounds getMapBounds(Location user) {
+    private LatLngBounds getMapBounds(Location loc1, Location loc2) {
         double north, east, west, south;
-        north = Math.max(OFFICE.latitude, user.getLatitude());
-        south = Math.min(OFFICE.latitude, user.getLatitude());
-        east = Math.max(OFFICE.longitude, user.getLongitude());
-        west = Math.min(OFFICE.longitude, user.getLongitude());
+        north = Math.max(loc1.getLatitude(), loc2.getLatitude());
+        south = Math.min(loc1.getLatitude(), loc2.getLatitude());
+        east = Math.max(loc1.getLongitude(), loc2.getLongitude());
+        west = Math.min(loc1.getLongitude(), loc2.getLongitude());
         return new LatLngBounds(new LatLng(south, west), new LatLng(north, east));
+    }
+
+    private void addUIElements() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(getResources().getColor(R.color.status_bar_color));
+        } else {
+            Log.d(TAG, "status bar color change not supported");
+        }
     }
 
     private class LocationHandlerClientImpl extends LocationHandlerClient {
