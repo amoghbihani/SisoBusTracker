@@ -1,11 +1,11 @@
 package com.batti.nil.sisobustracker.location;
 
+import android.location.Location;
+
 import com.android.volley.VolleyError;
 
-import org.json.JSONObject;
-
 public abstract class BusLocationHandlerClient {
-    public void onResponseReceived(JSONObject object) { }
+    public void onResponseReceived(Location location) { }
 
     public void onErrorReceivingResponse(VolleyError error) { }
 

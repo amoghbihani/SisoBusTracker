@@ -22,9 +22,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 public class MapsActivity extends FragmentActivity {
     private static final String TAG = "MapsActivity";
 
@@ -88,11 +85,18 @@ public class MapsActivity extends FragmentActivity {
             Location officeLocation = new Location("office");
             officeLocation.setLatitude(OFFICE.latitude);
             officeLocation.setLongitude(OFFICE.longitude);
+            LatLngBounds bounds;
+            if (mBusMarker != null) {
+                bounds = getMapBounds(
+                        officeLocation, location, mBusLocationHandler.getCurrentLocation());
+            } else {
+                Log.d(TAG, "Bus marker not available yet");
+                bounds = getMapBounds(officeLocation, location);
+            }
             Point size = new Point();
             getWindowManager().getDefaultDisplay().getSize(size);
             mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(
-                    getMapBounds(officeLocation, location),
-                    size.x - 50, size.y - 100, 10));
+                    bounds, size.x, size.y - 200, 50));
         } else {
             mUserMarker.setPosition(latLng);
         }
@@ -120,11 +124,18 @@ public class MapsActivity extends FragmentActivity {
             Location officeLocation = new Location("office");
             officeLocation.setLatitude(OFFICE.latitude);
             officeLocation.setLongitude(OFFICE.longitude);
+            LatLngBounds bounds;
+            if (mUserMarker != null) {
+                bounds = getMapBounds(
+                        officeLocation, location, mUserLocationHandler.getCurrentLocation());
+            } else {
+                Log.d(TAG, "User marker not available yet");
+                bounds = getMapBounds(officeLocation, location);
+            }
             Point size = new Point();
             getWindowManager().getDefaultDisplay().getSize(size);
             mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(
-                    getMapBounds(officeLocation, location),
-                    size.x - 50, size.y - 100, 10));
+                    bounds, size.x - 50, size.y - 100, 10));
         } else {
             mBusMarker.setPosition(latLng);
         }
@@ -167,17 +178,7 @@ public class MapsActivity extends FragmentActivity {
 
     private class BusLocationHandlerClientImpl extends BusLocationHandlerClient {
         @Override
-        public void onResponseReceived(JSONObject object) {
-            Log.d(TAG, "onResponseReceived");
-            if (object == null) return;
-            Location location = new Location("bus location");
-            try {
-                location.setLatitude(object.getDouble("Latitude"));
-                location.setLongitude(object.getDouble("Longitude"));
-            } catch (JSONException e) {
-                Log.e(TAG, "JSON parsing exception " + e);
-                return;
-            }
+        public void onResponseReceived(Location location) {
             updateBusLocation(location);
         }
 

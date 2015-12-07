@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="top_bar_height">60dp</dimen>
+    <dimen name="bus_route_number_margin">12dp</dimen>
+    <dimen name="bus_route_number_lengh">32dp</dimen>
+    <dimen name="bus_route_number_text_size">24dp</dimen>
+    <dimen name="bus_route_number_padding">2dp</dimen>
+    <dimen name="top_bar_text_margin">10dp</dimen>
+    <dimen name="top_bar_button_margin">10dp</dimen>
+</resources>

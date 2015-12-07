@@ -4,4 +4,6 @@
     <string name="no_gps">GPS is disabled. Do you want to enable it. GPS will help in getting better accuracy.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="waiting">Waiting</string>
+    <string name="inside">Inside</string>
 </resources>
