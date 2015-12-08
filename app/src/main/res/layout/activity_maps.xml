@@ -34,22 +34,35 @@
             android:singleLine="true"
             android:maxLength="3"/>
 
-        <Button
+        <RadioGroup
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_margin="@dimen/top_bar_button_margin"
-            android:layout_toLeftOf="@+id/inside_button"
-            android:background="@android:color/white"
-            android:text="@string/waiting"/>
-
-        <Button
-            android:id="@+id/inside_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_margin="@dimen/top_bar_button_margin"
             android:layout_alignParentRight="true"
-            android:background="@android:color/white"
-            android:text="@string/inside"/>
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/waiting_radio_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="@dimen/top_bar_radio_button_margin"
+                android:text="@string/waiting"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/top_bar_radio_button_text_size"
+                android:buttonTint="@android:color/white"
+                android:checked="true"
+                android:onClick="onRadioButtonClicked"/>
+
+            <RadioButton
+                android:id="@+id/inside_radio_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="@dimen/top_bar_radio_button_margin"
+                android:text="@string/inside"
+                android:textSize="@dimen/top_bar_radio_button_text_size"
+                android:textColor="@android:color/white"
+                android:buttonTint="@android:color/white"
+                android:onClick="onRadioButtonClicked"/>
+        </RadioGroup>
     </RelativeLayout>
 
     <fragment

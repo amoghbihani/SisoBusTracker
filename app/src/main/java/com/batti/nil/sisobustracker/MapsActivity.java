@@ -3,9 +3,13 @@ package com.batti.nil.sisobustracker;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Build;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.widget.RadioButton;
 
 import com.android.volley.VolleyError;
 import com.batti.nil.sisobustracker.common.MathUtils;
@@ -22,10 +26,14 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.logging.LogRecord;
+
 public class MapsActivity extends FragmentActivity {
     private static final String TAG = "MapsActivity";
 
     private static final LatLng OFFICE = new LatLng(12.980113, 77.696481);
+    private static final int REQUEST_BUS_LOCATION = 0;
+    private static final int REQUEST_BUS_LOCATION_DELAY = 2000;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private UserLocationHandler mUserLocationHandler;
     private BusLocationHandler mBusLocationHandler;
@@ -44,12 +52,14 @@ public class MapsActivity extends FragmentActivity {
         mBusLocationHandler = new BusLocationHandler(this, new BusLocationHandlerClientImpl());
         setUpMapIfNeeded();
         addUIElements();
+        requestBusLocation();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+        requestBusLocation();
     }
 
     private void setUpMapIfNeeded() {
@@ -141,29 +151,46 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
-    private LatLngBounds getMapBounds(Location loc1, Location loc2) {
-        double north, east, west, south;
-        north = MathUtils.max(loc1.getLatitude(), loc2.getLatitude());
-        south = MathUtils.min(loc1.getLatitude(), loc2.getLatitude());
-        east = MathUtils.max(loc1.getLongitude(), loc2.getLongitude());
-        west = MathUtils.min(loc1.getLongitude(), loc2.getLongitude());
-        return new LatLngBounds(new LatLng(south, west), new LatLng(north, east));
-    }
-
-    private LatLngBounds getMapBounds(Location loc1, Location loc2, Location loc3) {
-        double north, east, west, south;
-        north = MathUtils.max(loc1.getLatitude(), loc2.getLatitude(), loc3.getLatitude());
-        south = MathUtils.min(loc1.getLatitude(), loc2.getLatitude(), loc3.getLatitude());
-        east = MathUtils.max(loc1.getLongitude(), loc2.getLongitude(), loc3.getLongitude());
-        west = MathUtils.min(loc1.getLongitude(), loc2.getLongitude(), loc3.getLongitude());
-        return new LatLngBounds(new LatLng(south, west), new LatLng(north, east));
-    }
-
     private void addUIElements() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(getResources().getColor(R.color.status_bar_color));
         } else {
             Log.d(TAG, "status bar color change not supported");
+        }
+    }
+
+    private void requestBusLocation() {
+        if (!mIsWaiting) return;
+        Log.d(TAG, "Requesting bus location");
+        mBusLocationHandler.requestBusLocation();
+        mHandler.sendEmptyMessageDelayed(REQUEST_BUS_LOCATION, REQUEST_BUS_LOCATION_DELAY);
+    }
+
+    private void stopBusLocationRequest() {
+        mHandler.removeMessages(REQUEST_BUS_LOCATION);
+    }
+
+    public void onRadioButtonClicked(View view) {
+        boolean isChecked = ((RadioButton) view).isChecked();
+
+        switch (view.getId()) {
+            case R.id.waiting_radio_button:
+                if (isChecked) {
+                    Log.d(TAG, "waiting button checked");
+                    mIsWaiting = true;
+                    requestBusLocation();
+                }
+                break;
+            case R.id.inside_radio_button:
+                if (isChecked) {
+                    Log.d(TAG, "inside button checked");
+                    mIsWaiting = false;
+                    stopBusLocationRequest();
+                }
+                break;
+            default:
+                Log.d(TAG, "Something went wrong.");
+                break;
         }
     }
 
@@ -191,5 +218,37 @@ public class MapsActivity extends FragmentActivity {
         public void onErrorSendingRequest(VolleyError error) {
             Log.d(TAG, "onErrorSendingRequest");
         }
+    }
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case REQUEST_BUS_LOCATION:
+                    MapsActivity.this.requestBusLocation();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+
+    private LatLngBounds getMapBounds(Location loc1, Location loc2) {
+        double north, east, west, south;
+        north = MathUtils.max(loc1.getLatitude(), loc2.getLatitude());
+        south = MathUtils.min(loc1.getLatitude(), loc2.getLatitude());
+        east = MathUtils.max(loc1.getLongitude(), loc2.getLongitude());
+        west = MathUtils.min(loc1.getLongitude(), loc2.getLongitude());
+        return new LatLngBounds(new LatLng(south, west), new LatLng(north, east));
+    }
+
+    private LatLngBounds getMapBounds(Location loc1, Location loc2, Location loc3) {
+        double north, east, west, south;
+        north = MathUtils.max(loc1.getLatitude(), loc2.getLatitude(), loc3.getLatitude());
+        south = MathUtils.min(loc1.getLatitude(), loc2.getLatitude(), loc3.getLatitude());
+        east = MathUtils.max(loc1.getLongitude(), loc2.getLongitude(), loc3.getLongitude());
+        west = MathUtils.min(loc1.getLongitude(), loc2.getLongitude(), loc3.getLongitude());
+        return new LatLngBounds(new LatLng(south, west), new LatLng(north, east));
     }
 }

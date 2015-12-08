@@ -5,7 +5,6 @@ import android.location.Location;
 import android.util.Log;
 
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.batti.nil.sisobustracker.net.JsonRequestHandler;
 
 import org.json.JSONException;

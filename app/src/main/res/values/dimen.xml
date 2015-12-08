@@ -6,5 +6,6 @@
     <dimen name="bus_route_number_text_size">24dp</dimen>
     <dimen name="bus_route_number_padding">2dp</dimen>
     <dimen name="top_bar_text_margin">10dp</dimen>
-    <dimen name="top_bar_button_margin">10dp</dimen>
+    <dimen name="top_bar_radio_button_text_size">16dp</dimen>
+    <dimen name="top_bar_radio_button_margin">10dp</dimen>
 </resources>
