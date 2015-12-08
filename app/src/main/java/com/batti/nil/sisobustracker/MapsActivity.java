@@ -26,8 +26,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.logging.LogRecord;
-
 public class MapsActivity extends FragmentActivity {
     private static final String TAG = "MapsActivity";
 
