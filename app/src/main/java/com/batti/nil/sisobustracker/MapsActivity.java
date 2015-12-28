@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
+import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.batti.nil.sisobustracker.common.MathUtils;
@@ -48,8 +49,8 @@ public class MapsActivity extends FragmentActivity {
         setContentView(R.layout.activity_maps);
         mUserLocationHandler = new UserLocationHandler(this, new UserLocationHandlerClientImpl());
         mBusLocationHandler = new BusLocationHandler(this, new BusLocationHandlerClientImpl());
-        setUpMapIfNeeded();
         addUIElements();
+        setUpMapIfNeeded();
         requestBusLocation();
     }
 
@@ -155,6 +156,9 @@ public class MapsActivity extends FragmentActivity {
         } else {
             Log.d(TAG, "status bar color change not supported");
         }
+
+        TextView routeNumber = (TextView) findViewById(R.id.route_number_text);
+        routeNumber.setText("R:" + mRouteNumber);
     }
 
     private void requestBusLocation() {

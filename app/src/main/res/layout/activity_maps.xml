@@ -14,25 +14,13 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/r_text"
+            android:id="@+id/route_number_text"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/top_bar_text_margin"
             android:textColor="@android:color/white"
             android:gravity="center"
-            android:text="R:"
             android:textSize="@dimen/bus_route_number_text_size"/>
-
-        <EditText
-            android:id="@+id/bus_route_number_layout"
-            android:layout_width="@dimen/bus_route_number_lengh"
-            android:layout_height="match_parent"
-            android:layout_margin="@dimen/bus_route_number_margin"
-            android:padding="@dimen/bus_route_number_padding"
-            android:layout_toRightOf="@+id/r_text"
-            android:background="@android:color/white"
-            android:singleLine="true"
-            android:maxLength="3"/>
 
         <RadioGroup
             android:layout_width="wrap_content"
