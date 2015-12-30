@@ -12,8 +12,8 @@ import android.view.View;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.android.volley.VolleyError;
 import com.batti.nil.sisobustracker.common.MathUtils;
+import com.batti.nil.sisobustracker.location.BusLocation;
 import com.batti.nil.sisobustracker.location.BusLocationHandler;
 import com.batti.nil.sisobustracker.location.BusLocationHandlerClient;
 import com.batti.nil.sisobustracker.location.UserLocationHandler;
@@ -31,6 +31,8 @@ import com.parse.ParseObject;
 
 public class MapsActivity extends FragmentActivity {
     private static final String TAG = "MapsActivity";
+    private static final String APPLICATION_ID="dqRUCRTKgKIqhgMKOE096W85NmPxj9kfRXAFYMrH";
+    private static final String CLIENT_ID="SUi9RPni3ihmaUThh9lx9NMuUERKDw08miLjtxG6";
 
     private static final LatLng OFFICE = new LatLng(12.980113, 77.696481);
     private static final int REQUEST_BUS_LOCATION = 0;
@@ -50,8 +52,12 @@ public class MapsActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         mUserLocationHandler = new UserLocationHandler(this, new UserLocationHandlerClientImpl());
-        mBusLocationHandler = new BusLocationHandler(this, new BusLocationHandlerClientImpl());
-        Parse.initialize(this);
+        mBusLocationHandler = new BusLocationHandler(mRouteNumber,
+                new BusLocationHandlerClientImpl());
+
+        ParseObject.registerSubclass(BusLocation.class);
+        Parse.initialize(this, APPLICATION_ID, CLIENT_ID);
+
         addUIElements();
         setUpMapIfNeeded();
         requestBusLocation();
@@ -114,7 +120,7 @@ public class MapsActivity extends FragmentActivity {
         }
 
         if (!mIsWaiting) {
-            mBusLocationHandler.sendBusLocation(mRouteNumber, location);
+            mBusLocationHandler.sendBusLocation(location);
         }
     }
 
@@ -166,7 +172,6 @@ public class MapsActivity extends FragmentActivity {
 
     private void requestBusLocation() {
         if (!mIsWaiting) return;
-        Log.d(TAG, "Requesting bus location");
         mBusLocationHandler.requestBusLocation();
         mHandler.sendEmptyMessageDelayed(REQUEST_BUS_LOCATION, REQUEST_BUS_LOCATION_DELAY);
     }
@@ -191,6 +196,7 @@ public class MapsActivity extends FragmentActivity {
                     Log.d(TAG, "inside button checked");
                     mIsWaiting = false;
                     stopBusLocationRequest();
+                    mBusLocationHandler.sendBusLocation(mUserLocationHandler.getCurrentLocation());
                 }
                 break;
             default:
@@ -212,16 +218,6 @@ public class MapsActivity extends FragmentActivity {
         @Override
         public void onResponseReceived(Location location) {
             updateBusLocation(location);
-        }
-
-        @Override
-        public void onErrorReceivingResponse(VolleyError error) {
-            Log.d(TAG, "onErrorReceivingResponse");
-        }
-
-        @Override
-        public void onErrorSendingRequest(VolleyError error) {
-            Log.d(TAG, "onErrorSendingRequest");
         }
     }
 

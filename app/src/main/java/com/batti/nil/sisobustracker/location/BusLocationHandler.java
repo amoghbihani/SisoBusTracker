@@ -4,70 +4,88 @@ import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 
-import com.android.volley.VolleyError;
-import com.batti.nil.sisobustracker.net.JsonRequestHandler;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.List;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class BusLocationHandler extends JsonRequestHandler {
+public class BusLocationHandler {
     public static final String TAG = "BusLocationHandler";
 
     private final BusLocationHandlerClient mClient;
+    private final String mRouteNumber;
     private Location mLastKnownBusLocation;
-    private String mGetUrl = "";
-    private String mPostUrl = "";
 
-    public BusLocationHandler(Context context, BusLocationHandlerClient client) {
-        super(context);
+    public BusLocationHandler(String routeNumber, BusLocationHandlerClient client) {
         mClient = client;
+        mRouteNumber = routeNumber;
         mLastKnownBusLocation = new Location("Bus Location");
     }
 
     public void requestBusLocation() {
-        requestJSONObject(mGetUrl);
+        ParseQuery<BusLocation> query = ParseQuery.getQuery(BusLocation.class);
+        query.whereEqualTo("routeNumber", mRouteNumber);
+        query.findInBackground(new FindCallback<BusLocation>() {
+            @Override
+            public void done(List<BusLocation> list, ParseException e) {
+                if (e != null) {
+                    onErrorReceivingResponse(e.getMessage());
+                    return;
+                }
+                if (list.size() == 0) {
+                    onErrorReceivingResponse("No location present");
+                    return;
+                } else if (list.size() > 1) {
+                    onErrorReceivingResponse("Multiple locations present");
+                    return;
+                }
+                onResponseReceived(list.get(0).getLocation());
+            }
+        });
     }
 
     public Location getCurrentLocation() {
         return mLastKnownBusLocation;
     }
 
-    public void sendBusLocation(String routeNumber, Location location) {
-        Map<String, String> request = new HashMap<String, String>();
-        request.put("RouteNumber", routeNumber);
-        request.put("Latitude", String.valueOf(location.getLatitude()));
-        request.put("Longitude", String.valueOf(location.getLongitude()));
-        sendJsonObject(mPostUrl, new JSONObject(request));
+    public void sendBusLocation(final Location location) {
+        ParseQuery<BusLocation> query = ParseQuery.getQuery(BusLocation.class);
+        query.whereEqualTo("routeNumber", mRouteNumber);
+        query.findInBackground(new FindCallback<BusLocation>() {
+            @Override
+            public void done(List<BusLocation> list, ParseException e) {
+                if (e != null) {
+                    onErrorSendingRequest(e.getMessage());
+                    return;
+                }
+                if (list.size() == 0) {
+                    onErrorSendingRequest("No location present");
+                    return;
+                } else if (list.size() > 1) {
+                    onErrorSendingRequest("Multiple locations present");
+                    return;
+                }
+                BusLocation busLocation = list.get(0);
+                Log.d(TAG, busLocation.getObjectId());
+                busLocation.setLocation(location);
+                busLocation.saveInBackground();
+            }
+        });
     }
 
-    @Override
-    public void onResponseReceived(JSONObject response) {
-        if (response == null) return;
-        try {
-            mLastKnownBusLocation.setLatitude(response.getDouble("Latitude"));
-            mLastKnownBusLocation.setLongitude(response.getDouble("Longitude"));
-        } catch (JSONException e) {
-            Log.e(TAG, "JSON parsing exception " + e);
-            return;
-        }
+    public void onResponseReceived(Location location) {
+        mLastKnownBusLocation = location;
         mClient.onResponseReceived(mLastKnownBusLocation);
     }
 
-    @Override
-    public void onErrorReceivingResponse(VolleyError error) {
-        mClient.onErrorReceivingResponse(error);
+    public void onErrorReceivingResponse(String msg) {
+        Log.d(TAG, "onErrorReceivingResponse " + msg);
+        mClient.onErrorReceivingResponse();
     }
 
-    @Override
-    public void onRequestSent() {
-        mClient.onRequestSent();
-    }
-
-    @Override
-    public void onErrorSendingRequest(VolleyError error) {
-        mClient.onErrorSendingRequest(error);
+    public void onErrorSendingRequest(String msg) {
+        Log.d(TAG, "onErrorSendingResponse " + msg);
+        mClient.onErrorSendingRequest();
     }
 }
