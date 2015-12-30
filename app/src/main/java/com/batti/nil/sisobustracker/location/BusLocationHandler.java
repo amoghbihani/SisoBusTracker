@@ -7,6 +7,7 @@ import android.util.Log;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import java.util.List;
 
@@ -69,7 +70,14 @@ public class BusLocationHandler {
                 BusLocation busLocation = list.get(0);
                 Log.d(TAG, busLocation.getObjectId());
                 busLocation.setLocation(location);
-                busLocation.saveInBackground();
+                busLocation.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e != null) {
+                            onErrorSendingRequest(e.getMessage());
+                        }
+                    }
+                });
             }
         });
     }

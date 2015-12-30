@@ -17,8 +17,8 @@ public class BusLocation extends ParseObject{
     }
 
     public void setLocation(Location location) {
-        put(LATITUDE, location.getLatitude());
-        put(LONGITUDE, location.getLongitude());
+        put(LATITUDE, String.valueOf(location.getLatitude()));
+        put(LONGITUDE, String.valueOf(location.getLongitude()));
     }
 
     public String getRouteNumber() {
