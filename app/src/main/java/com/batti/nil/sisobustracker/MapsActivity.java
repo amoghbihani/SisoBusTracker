@@ -26,6 +26,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.Parse;
+import com.parse.ParseObject;
 
 public class MapsActivity extends FragmentActivity {
     private static final String TAG = "MapsActivity";
@@ -49,6 +51,7 @@ public class MapsActivity extends FragmentActivity {
         setContentView(R.layout.activity_maps);
         mUserLocationHandler = new UserLocationHandler(this, new UserLocationHandlerClientImpl());
         mBusLocationHandler = new BusLocationHandler(this, new BusLocationHandlerClientImpl());
+        Parse.initialize(this);
         addUIElements();
         setUpMapIfNeeded();
         requestBusLocation();
