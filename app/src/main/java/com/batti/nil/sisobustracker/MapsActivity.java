@@ -55,8 +55,12 @@ public class MapsActivity extends FragmentActivity {
         mBusLocationHandler = new BusLocationHandler(mRouteNumber,
                 new BusLocationHandlerClientImpl());
 
-        ParseObject.registerSubclass(BusLocation.class);
-        Parse.initialize(this, APPLICATION_ID, CLIENT_ID);
+        try {
+            ParseObject.registerSubclass(BusLocation.class);
+            Parse.initialize(this, APPLICATION_ID, CLIENT_ID);
+        } catch (IllegalStateException e) {
+            Log.d(TAG, "Parse already initialized");
+        }
 
         addUIElements();
         setUpMapIfNeeded();
@@ -121,6 +125,9 @@ public class MapsActivity extends FragmentActivity {
 
         if (!mIsWaiting) {
             mBusLocationHandler.sendBusLocation(location);
+            if (mBusMarker != null) {
+                mBusMarker.setPosition(latLng);
+            }
         }
     }
 
