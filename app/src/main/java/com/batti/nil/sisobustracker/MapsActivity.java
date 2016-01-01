@@ -64,15 +64,18 @@ public class MapsActivity extends FragmentActivity {
             Log.d(TAG, "Parse already initialized");
         }
 
-        addUIElements();
-        mIsWaiting = ((RadioButton) findViewById(R.id.waiting_radio_button)).isChecked();
-        setUpMapIfNeeded();
-        requestBusLocation();
+        startUp();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        startUp();
+    }
+
+    private void startUp() {
+        addUIElements();
+        mIsWaiting = ((RadioButton) findViewById(R.id.waiting_radio_button)).isChecked();
         setUpMapIfNeeded();
         requestBusLocation();
     }
@@ -222,7 +225,8 @@ public class MapsActivity extends FragmentActivity {
                         Log.d(TAG, "inside button checked");
                         mIsWaiting = false;
                         stopBusLocationRequest();
-                        mBusLocationHandler.sendBusLocation(mUserLocationHandler.getCurrentLocation());
+                        mBusLocationHandler.sendBusLocation(
+                                mUserLocationHandler.getCurrentLocation());
                     }
                 })
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
