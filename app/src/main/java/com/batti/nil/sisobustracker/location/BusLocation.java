@@ -5,15 +5,22 @@ import android.location.Location;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
+import java.util.Date;
+
 @ParseClassName("BusLocation")
 public class BusLocation extends ParseObject{
     private static final String TAG = "BusLocation";
     private static final String ROUTE_NUMBER = "routeNumber";
     private static final String LATITUDE = "latitude";
     private static final String LONGITUDE = "longitude";
+    private static final String UPDATED_AT = "updatedAt";
 
     public void setRouteNumber(String routeNumber) {
         put(ROUTE_NUMBER, routeNumber);
+    }
+
+    public String getRouteNumber() {
+        return getString(ROUTE_NUMBER);
     }
 
     public void setLocation(Location location) {
@@ -21,14 +28,14 @@ public class BusLocation extends ParseObject{
         put(LONGITUDE, String.valueOf(location.getLongitude()));
     }
 
-    public String getRouteNumber() {
-        return getString(ROUTE_NUMBER);
-    }
-
     public Location getLocation() {
         Location location = new Location(TAG);
         location.setLatitude(Double.parseDouble(getString(LATITUDE)));
         location.setLongitude(Double.parseDouble(getString(LONGITUDE)));
         return location;
+    }
+
+    public Date getLastUpdatedDate() {
+        return getDate(UPDATED_AT);
     }
 }

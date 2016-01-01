@@ -1,5 +1,7 @@
 package com.batti.nil.sisobustracker;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Build;
@@ -63,6 +65,7 @@ public class MapsActivity extends FragmentActivity {
         }
 
         addUIElements();
+        mIsWaiting = ((RadioButton) findViewById(R.id.waiting_radio_button)).isChecked();
         setUpMapIfNeeded();
         requestBusLocation();
     }
@@ -200,16 +203,38 @@ public class MapsActivity extends FragmentActivity {
                 break;
             case R.id.inside_radio_button:
                 if (isChecked) {
-                    Log.d(TAG, "inside button checked");
-                    mIsWaiting = false;
-                    stopBusLocationRequest();
-                    mBusLocationHandler.sendBusLocation(mUserLocationHandler.getCurrentLocation());
+                    createInsideBusConfirmationAlert();
                 }
                 break;
             default:
                 Log.d(TAG, "Something went wrong.");
                 break;
         }
+    }
+
+    private void createInsideBusConfirmationAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.inside_confirmation)
+                .setCancelable(false)
+                .setPositiveButton(R.string.yes_im_in, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.d(TAG, "inside button checked");
+                        mIsWaiting = false;
+                        stopBusLocationRequest();
+                        mBusLocationHandler.sendBusLocation(mUserLocationHandler.getCurrentLocation());
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        RadioButton button = (RadioButton) findViewById(R.id.waiting_radio_button);
+                        button.setChecked(true);
+                        dialog.dismiss();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     private class UserLocationHandlerClientImpl extends UserLocationHandlerClient {
@@ -224,6 +249,8 @@ public class MapsActivity extends FragmentActivity {
     private class BusLocationHandlerClientImpl extends BusLocationHandlerClient {
         @Override
         public void onResponseReceived(Location location) {
+            Log.d(TAG, "onResponseReceived bus location " + location.getLatitude()
+                     + " " + location.getLongitude());
             updateBusLocation(location);
         }
     }

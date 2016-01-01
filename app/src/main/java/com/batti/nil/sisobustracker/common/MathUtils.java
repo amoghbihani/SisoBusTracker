@@ -1,5 +1,8 @@
 package com.batti.nil.sisobustracker.common;
 
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
 public class MathUtils {
     public static double max(double a, double b) {
         return Math.max(a, b);
@@ -21,5 +24,10 @@ public class MathUtils {
         if (min > b) min = b;
         if (min > c) min = c;
         return min;
+    }
+
+    public static long getTimeDiff(Date date1, Date date2, TimeUnit timeUnit) {
+        long diff = date1.getTime() - date2.getTime();
+        return timeUnit.convert(diff, TimeUnit.MILLISECONDS);
     }
 }

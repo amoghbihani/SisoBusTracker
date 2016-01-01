@@ -6,4 +6,6 @@
     <string name="no">No</string>
     <string name="waiting">Waiting</string>
     <string name="inside">Inside</string>
+    <string name="inside_confirmation">Are you sure? \n\nPlease select this only if you are inside the bus otherwise others will get a wrong location.</string>
+    <string name="yes_im_in">Yes, I\'m in</string>
 </resources>

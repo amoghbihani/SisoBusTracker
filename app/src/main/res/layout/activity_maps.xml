@@ -38,7 +38,7 @@
                 android:textSize="@dimen/top_bar_radio_button_text_size"
                 android:buttonTint="@android:color/white"
                 android:checked="true"
-                android:onClick="onRadioButtonClicked"/>
+                android:onClick="onRadioButtonClicked" />
 
             <RadioButton
                 android:id="@+id/inside_radio_button"

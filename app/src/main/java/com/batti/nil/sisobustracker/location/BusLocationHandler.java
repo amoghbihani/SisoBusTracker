@@ -1,6 +1,5 @@
 package com.batti.nil.sisobustracker.location;
 
-import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 
@@ -60,15 +59,22 @@ public class BusLocationHandler {
                     onErrorSendingRequest(e.getMessage());
                     return;
                 }
-                if (list.size() == 0) {
-                    onErrorSendingRequest("No location present");
-                    return;
-                } else if (list.size() > 1) {
-                    onErrorSendingRequest("Multiple locations present");
-                    return;
+
+                BusLocation busLocation;
+                if (list.size() == 1) {
+                    busLocation = list.get(0);
+                } else if (list.size() == 0) {
+                    Log.d(TAG, "No item found, creating one");
+                    busLocation = new BusLocation();
+                    busLocation.setRouteNumber(mRouteNumber);
+                } else {
+                    Log.d(TAG, "Multiple items found, deleting all and creating one");
+                    for (int i = 0; i < list.size(); ++i) {
+                        list.get(i).deleteInBackground();
+                    }
+                    busLocation = new BusLocation();
+                    busLocation.setRouteNumber(mRouteNumber);
                 }
-                BusLocation busLocation = list.get(0);
-                Log.d(TAG, busLocation.getObjectId());
                 busLocation.setLocation(location);
                 busLocation.saveInBackground(new SaveCallback() {
                     @Override
