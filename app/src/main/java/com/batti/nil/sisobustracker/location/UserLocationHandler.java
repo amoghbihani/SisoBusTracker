@@ -16,15 +16,18 @@ public class UserLocationHandler {
 
     private Context mContext;
     private LocationManager mLocationManager;
+    private UserLocationHandlerClient mClient;
 
     public UserLocationHandler(Context context, UserLocationHandlerClient client) {
         mContext = context;
+        mClient = client;
+
         mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         if (!isLocationEnabled()) {
             createNoLocationAlert();
         }
         mLocationManager.requestLocationUpdates(
-                getBestLocationProvider(), 2 * 1000, 10, new UserLocationListener(client));
+                getBestLocationProvider(), 2 * 1000, 10, new UserLocationListener(mClient));
     }
 
     public Location getCurrentLocation() {
@@ -54,13 +57,15 @@ public class UserLocationHandler {
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mContext.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                        mContext.startActivity(
+                                new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                     }
                 })
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
+                        mClient.exitApplication();
                     }
                 });
         AlertDialog alert = builder.create();

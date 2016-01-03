@@ -33,8 +33,8 @@ import com.parse.ParseObject;
 
 public class MapsActivity extends FragmentActivity {
     private static final String TAG = "MapsActivity";
-    private static final String APPLICATION_ID="dqRUCRTKgKIqhgMKOE096W85NmPxj9kfRXAFYMrH";
-    private static final String CLIENT_ID="SUi9RPni3ihmaUThh9lx9NMuUERKDw08miLjtxG6";
+    private static final String APPLICATION_ID = "dqRUCRTKgKIqhgMKOE096W85NmPxj9kfRXAFYMrH";
+    private static final String CLIENT_ID = "SUi9RPni3ihmaUThh9lx9NMuUERKDw08miLjtxG6";
 
     private static final LatLng OFFICE = new LatLng(12.980113, 77.696481);
     private static final int REQUEST_BUS_LOCATION = 0;
@@ -247,6 +247,12 @@ public class MapsActivity extends FragmentActivity {
             Log.d(TAG, "onLocationChanged " + location.getLatitude()
                     + " " + location.getLongitude());
             updateUserLocation(location);
+        }
+
+        @Override
+        public void exitApplication() {
+            finish();
+            System.exit(1);
         }
     }
 

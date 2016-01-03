@@ -8,4 +8,5 @@
     <string name="inside">Inside</string>
     <string name="inside_confirmation">Are you sure? \n\nPlease select this only if you are inside the bus otherwise others will get a wrong location.</string>
     <string name="yes_im_in">Yes, I\'m in</string>
+    <string name="please_enable_gps">Please enable location service to use the app.</string>
 </resources>

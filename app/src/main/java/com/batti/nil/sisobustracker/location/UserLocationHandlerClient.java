@@ -11,4 +11,6 @@ public abstract class UserLocationHandlerClient {
     public void onProviderEnabled(String provider) { }
 
     public void onStatusChanged(String provider, int status, Bundle extras) { }
+
+    public void exitApplication() { }
 }

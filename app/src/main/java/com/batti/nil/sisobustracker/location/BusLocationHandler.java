@@ -50,6 +50,7 @@ public class BusLocationHandler {
     }
 
     public void sendBusLocation(final Location location) {
+        if (location == null) return;
         ParseQuery<BusLocation> query = ParseQuery.getQuery(BusLocation.class);
         query.whereEqualTo("routeNumber", mRouteNumber);
         query.findInBackground(new FindCallback<BusLocation>() {
