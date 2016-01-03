@@ -6,3 +6,7 @@ The app has two options: Waiting and Inside.
 When the user is "waiting", he will get the bus location, if available, and when user is "inside", his location would be shared with others who are "waiting".
 
 This application uses Facebook Parse as cloud backend for storing and sharing bus location.
+
+Following screenshot shows the application UI.
+
+![Alt text](https://github.com/amoghbihani/SisoBusTracker/blob/master/screenshots/screenshot.png)
