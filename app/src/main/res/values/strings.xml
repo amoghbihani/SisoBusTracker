@@ -4,6 +4,7 @@
     <string name="no_gps">GPS is disabled. Do you want to enable it. GPS will help in getting better accuracy.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="cancel">Cancel</string>
     <string name="waiting">Waiting</string>
     <string name="inside">Inside</string>
     <string name="inside_confirmation">Are you sure? \n\nPlease select this only if you are inside the bus otherwise others will get a wrong location.</string>
