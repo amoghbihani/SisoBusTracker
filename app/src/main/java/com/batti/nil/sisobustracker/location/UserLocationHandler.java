@@ -26,6 +26,10 @@ public class UserLocationHandler {
         if (!isLocationEnabled()) {
             createNoLocationAlert();
         }
+        requestLocationUpdates();
+    }
+
+    public void requestLocationUpdates() {
         mLocationManager.requestLocationUpdates(
                 getBestLocationProvider(), 2 * 1000, 10, new UserLocationListener(mClient));
     }

@@ -53,6 +53,7 @@ public class MapsActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
         mUserLocationHandler = new UserLocationHandler(this, new UserLocationHandlerClientImpl());
         mBusLocationHandler = new BusLocationHandler(mRouteNumber,
                 new BusLocationHandlerClientImpl());
@@ -74,6 +75,7 @@ public class MapsActivity extends FragmentActivity {
     }
 
     private void startUp() {
+        mUserLocationHandler.requestLocationUpdates();
         addUIElements();
         mIsWaiting = ((RadioButton) findViewById(R.id.waiting_radio_button)).isChecked();
         setUpMapIfNeeded();
