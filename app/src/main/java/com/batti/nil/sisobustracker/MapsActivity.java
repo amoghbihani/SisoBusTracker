@@ -1,14 +1,17 @@
 package com.batti.nil.sisobustracker;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Build;
-import android.os.Message;
+import android.os.IBinder;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
@@ -16,10 +19,7 @@ import android.widget.TextView;
 
 import com.batti.nil.sisobustracker.common.MathUtils;
 import com.batti.nil.sisobustracker.location.BusLocation;
-import com.batti.nil.sisobustracker.location.BusLocationHandler;
-import com.batti.nil.sisobustracker.location.BusLocationHandlerClient;
-import com.batti.nil.sisobustracker.location.UserLocationHandler;
-import com.batti.nil.sisobustracker.location.UserLocationHandlerClient;
+import com.batti.nil.sisobustracker.location.LocationService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -35,15 +35,12 @@ public class MapsActivity extends FragmentActivity {
     private static final String TAG = "MapsActivity";
     private static final String APPLICATION_ID = "dqRUCRTKgKIqhgMKOE096W85NmPxj9kfRXAFYMrH";
     private static final String CLIENT_ID = "SUi9RPni3ihmaUThh9lx9NMuUERKDw08miLjtxG6";
-
     private static final LatLng OFFICE = new LatLng(12.980113, 77.696481);
-    private static final int REQUEST_BUS_LOCATION = 0;
-    private static final int REQUEST_BUS_LOCATION_DELAY = 2000;
+
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private UserLocationHandler mUserLocationHandler;
-    private BusLocationHandler mBusLocationHandler;
     private String mRouteNumber = "9"; // TODO: add logic to take user input.
     private boolean mIsWaiting = true;
+    private LocationService.LocationServiceBinder mBinder;
 
     private Marker mUserMarker;
     private Marker mOfficeMarker;
@@ -53,10 +50,6 @@ public class MapsActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
-        mUserLocationHandler = new UserLocationHandler(this, new UserLocationHandlerClientImpl());
-        mBusLocationHandler = new BusLocationHandler(mRouteNumber,
-                new BusLocationHandlerClientImpl());
 
         try {
             ParseObject.registerSubclass(BusLocation.class);
@@ -74,12 +67,28 @@ public class MapsActivity extends FragmentActivity {
         startUp();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            unbindService(mConnection);
+        } catch (IllegalArgumentException ex) {
+            Log.d(TAG, ex.getMessage());
+        }
+    }
+
     private void startUp() {
-        mUserLocationHandler.requestLocationUpdates();
         addUIElements();
         mIsWaiting = ((RadioButton) findViewById(R.id.waiting_radio_button)).isChecked();
+
+        if (mBinder == null) {
+            Intent locationServiceIntent = new Intent(this, LocationService.class);
+            bindService(locationServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+        } else {
+            mBinder.requestLocationUpdates();
+        }
+
         setUpMapIfNeeded();
-        requestBusLocation();
     }
 
     private void setUpMapIfNeeded() {
@@ -93,7 +102,6 @@ public class MapsActivity extends FragmentActivity {
                     .position(OFFICE)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.office_building)));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(OFFICE, 15));
-            updateUserLocation(mUserLocationHandler.getCurrentLocation());
         }
     }
 
@@ -112,13 +120,10 @@ public class MapsActivity extends FragmentActivity {
             mUserMarker = mMap.addMarker(new MarkerOptions()
                     .position(latLng)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.user)));
-            Location officeLocation = new Location("office");
-            officeLocation.setLatitude(OFFICE.latitude);
-            officeLocation.setLongitude(OFFICE.longitude);
+            Location officeLocation = getOfficeLocation();
             LatLngBounds bounds;
             if (mBusMarker != null) {
-                bounds = getMapBounds(
-                        officeLocation, location, mBusLocationHandler.getCurrentLocation());
+                bounds = getMapBounds(officeLocation, location, getBusLocation());
             } else {
                 Log.d(TAG, "Bus marker not available yet");
                 bounds = getMapBounds(officeLocation, location);
@@ -131,11 +136,8 @@ public class MapsActivity extends FragmentActivity {
             mUserMarker.setPosition(latLng);
         }
 
-        if (!mIsWaiting) {
-            mBusLocationHandler.sendBusLocation(location);
-            if (mBusMarker != null) {
-                mBusMarker.setPosition(latLng);
-            }
+        if (!mIsWaiting && mBusMarker != null) {
+            mBusMarker.setPosition(latLng);
         }
     }
 
@@ -154,13 +156,10 @@ public class MapsActivity extends FragmentActivity {
             mBusMarker = mMap.addMarker(new MarkerOptions()
                     .position(latLng)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
-            Location officeLocation = new Location("office");
-            officeLocation.setLatitude(OFFICE.latitude);
-            officeLocation.setLongitude(OFFICE.longitude);
+            Location officeLocation = getOfficeLocation();
             LatLngBounds bounds;
             if (mUserMarker != null) {
-                bounds = getMapBounds(
-                        officeLocation, location, mUserLocationHandler.getCurrentLocation());
+                bounds = getMapBounds(officeLocation, location, getUserLocation());
             } else {
                 Log.d(TAG, "User marker not available yet");
                 bounds = getMapBounds(officeLocation, location);
@@ -185,16 +184,6 @@ public class MapsActivity extends FragmentActivity {
         routeNumber.setText("R:" + mRouteNumber);
     }
 
-    private void requestBusLocation() {
-        if (!mIsWaiting) return;
-        mBusLocationHandler.requestBusLocation();
-        mHandler.sendEmptyMessageDelayed(REQUEST_BUS_LOCATION, REQUEST_BUS_LOCATION_DELAY);
-    }
-
-    private void stopBusLocationRequest() {
-        mHandler.removeMessages(REQUEST_BUS_LOCATION);
-    }
-
     public void onRadioButtonClicked(View view) {
         boolean isChecked = ((RadioButton) view).isChecked();
 
@@ -203,7 +192,7 @@ public class MapsActivity extends FragmentActivity {
                 if (isChecked) {
                     Log.d(TAG, "waiting button checked");
                     mIsWaiting = true;
-                    requestBusLocation();
+                    onWaitingModeChanged();
                 }
                 break;
             case R.id.inside_radio_button:
@@ -226,9 +215,7 @@ public class MapsActivity extends FragmentActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         Log.d(TAG, "inside button checked");
                         mIsWaiting = false;
-                        stopBusLocationRequest();
-                        mBusLocationHandler.sendBusLocation(
-                                mUserLocationHandler.getCurrentLocation());
+                        onWaitingModeChanged();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -243,43 +230,55 @@ public class MapsActivity extends FragmentActivity {
         alert.show();
     }
 
-    private class UserLocationHandlerClientImpl extends UserLocationHandlerClient {
-        @Override
-        public void onLocationChanged(Location location) {
-            Log.d(TAG, "onLocationChanged " + location.getLatitude()
-                    + " " + location.getLongitude());
-            updateUserLocation(location);
+    private Location getOfficeLocation() {
+        Location officeLocation = new Location("office");
+        officeLocation.setLatitude(OFFICE.latitude);
+        officeLocation.setLongitude(OFFICE.longitude);
+        return officeLocation;
+    }
+
+    private Location getUserLocation() {
+        if (mBinder == null) return getOfficeLocation();
+        return mBinder.getUserLocation();
+    }
+
+    private Location getBusLocation() {
+        if (mBinder == null) return getOfficeLocation();
+        return mBinder.getBusLocation();
+    }
+
+    private void onWaitingModeChanged() {
+        if (mBinder == null) return;
+        mBinder.onWaitingModeChanged(mIsWaiting);
+    }
+
+    public class MapsActivityClient {
+        public void updateUserLocation(Location location) {
+            MapsActivity.this.updateUserLocation(location);
         }
 
-        @Override
+        public void updateBusLocation(Location location) {
+            MapsActivity.this.updateBusLocation(location);
+        }
+
         public void exitApplication() {
             finish();
             System.exit(1);
         }
     }
 
-    private class BusLocationHandlerClientImpl extends BusLocationHandlerClient {
+    private ServiceConnection mConnection = new ServiceConnection() {
         @Override
-        public void onResponseReceived(Location location) {
-            Log.d(TAG, "onResponseReceived bus location " + location.getLatitude()
-                     + " " + location.getLongitude());
-            updateBusLocation(location);
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mBinder = (LocationService.LocationServiceBinder) service;
+            mBinder.initialize(new MapsActivityClient(), mRouteNumber, mIsWaiting);
         }
-    }
 
-    private Handler mHandler = new Handler() {
         @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case REQUEST_BUS_LOCATION:
-                    MapsActivity.this.requestBusLocation();
-                    break;
-                default:
-                    break;
-            }
+        public void onServiceDisconnected(ComponentName name) {
+            mBinder = null;
         }
     };
-
 
     private LatLngBounds getMapBounds(Location loc1, Location loc2) {
         double north, east, west, south;

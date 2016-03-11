@@ -7,7 +7,7 @@ import com.parse.ParseObject;
 
 import java.util.Date;
 
-@ParseClassName("BusLocation")
+@ParseClassName("BusLocationTest")
 public class BusLocation extends ParseObject{
     private static final String TAG = "BusLocation";
     private static final String ROUTE_NUMBER = "routeNumber";
