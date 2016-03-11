@@ -12,5 +12,5 @@ public abstract class UserLocationHandlerClient {
 
     public void onStatusChanged(String provider, int status, Bundle extras) { }
 
-    public void exitApplication() { }
+    public void createGPSOffAlert() { }
 }

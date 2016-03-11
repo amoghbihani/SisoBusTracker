@@ -24,7 +24,7 @@ public class UserLocationHandler {
 
         mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         if (!isLocationEnabled()) {
-            createNoLocationAlert();
+            mClient.createGPSOffAlert();
         }
         requestLocationUpdates();
     }
@@ -52,27 +52,5 @@ public class UserLocationHandler {
         criteria.setSpeedAccuracy(Criteria.ACCURACY_MEDIUM);
         criteria.setPowerRequirement(Criteria.POWER_LOW);
         return mLocationManager.getBestProvider(criteria, true);
-    }
-
-    private void createNoLocationAlert() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setMessage(R.string.no_gps)
-                .setCancelable(false)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mContext.startActivity(
-                                new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    }
-                })
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        mClient.exitApplication();
-                    }
-                });
-        AlertDialog alert = builder.create();
-        alert.show();
     }
 }

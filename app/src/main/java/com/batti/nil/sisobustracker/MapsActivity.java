@@ -10,6 +10,7 @@ import android.graphics.Point;
 import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -264,6 +265,27 @@ public class MapsActivity extends FragmentActivity {
         public void exitApplication() {
             finish();
             System.exit(1);
+        }
+
+        public void createGPSOffAlert() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+            builder.setMessage(R.string.no_gps)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                        }
+                    })
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            exitApplication();
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
         }
     }
 
