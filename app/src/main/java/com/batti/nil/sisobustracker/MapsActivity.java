@@ -36,7 +36,7 @@ public class MapsActivity extends FragmentActivity {
     private static final String TAG = "MapsActivity";
     private static final String APPLICATION_ID = "dqRUCRTKgKIqhgMKOE096W85NmPxj9kfRXAFYMrH";
     private static final String CLIENT_ID = "SUi9RPni3ihmaUThh9lx9NMuUERKDw08miLjtxG6";
-    private static final LatLng OFFICE = new LatLng(12.980113, 77.696481);
+    private static final LatLng OFFICE = new LatLng(12.980253, 77.697375);
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private String mRouteNumber = "9"; // TODO: add logic to take user input.
