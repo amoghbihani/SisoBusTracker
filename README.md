@@ -10,3 +10,9 @@ This application uses Facebook Parse as cloud backend for storing and sharing bu
 Following screenshot shows the application UI.
 
 ![Alt text](https://github.com/amoghbihani/SisoBusTracker/blob/master/screenshots/screenshot.png)
+
+A notification is also shown to the user when s/he is sharing location so as to inform about the background activity. It also gives a button to stop location sharing.
+
+Following screenshot shows the notification UI.
+
+![Alt text](https://github.com/amoghbihani/SisoBusTracker/blob/master/screenshots/notification.png)
