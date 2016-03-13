@@ -11,9 +11,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
 
 import com.batti.nil.sisobustracker.MapsActivity;
@@ -23,8 +21,6 @@ import com.batti.nil.sisobustracker.R;
 public class LocationService extends Service {
     private static final String TAG = "LocationService";
     private static final String BROADCAST_CANCEL_SHARING = "Siso Bus Tracker: Cancel sharing";
-    private static final int REQUEST_BUS_LOCATION = 0;
-    private static final int REQUEST_BUS_LOCATION_DELAY = 2000;
     private static final int NOTIFICATION_ID = 10192;
     private static final int NOTIFICATION_REQUEST_CODE = 13187;
 
@@ -44,11 +40,9 @@ public class LocationService extends Service {
         public void onWaitingModeChanged(boolean isWaiting) {
             mIsWaiting = isWaiting;
             if (mIsWaiting) {
-                requestBusLocation();
                 showNotification(false);
             } else {
-                stopBusLocationRequest();
-                sendBusLocation(mUserLocationHandler.getCurrentLocation());
+                sendBusLocation(getUserLocation());
                 showNotification(true);
             }
         }
@@ -103,7 +97,6 @@ public class LocationService extends Service {
         mUserLocationHandler = new UserLocationHandler(this, new UserLocationHandlerClientImpl());
         mBusLocationHandler = new BusLocationHandler(mRouteNumber,
                 new BusLocationHandlerClientImpl());
-        requestBusLocation();
         requestLocationUpdates();
     }
 
@@ -115,23 +108,13 @@ public class LocationService extends Service {
         return mUserLocationHandler.getCurrentLocation();
     }
 
-    private void requestBusLocation() {
-        if (!mIsWaiting) return;
-        mBusLocationHandler.requestBusLocation();
-        mHandler.sendEmptyMessageDelayed(REQUEST_BUS_LOCATION, REQUEST_BUS_LOCATION_DELAY);
-    }
-
-    private void stopBusLocationRequest() {
-        mHandler.removeMessages(REQUEST_BUS_LOCATION);
-    }
-
     private Location getBusLocation() {
         return mBusLocationHandler.getCurrentLocation();
     }
 
     private void sendBusLocation(Location location) {
         Log.d(TAG, "sendBusLocation " + location.getLatitude()
-                + " " + location.getLatitude());
+                + " " + location.getLongitude());
         mBusLocationHandler.sendBusLocation(location);
     }
 
@@ -203,19 +186,6 @@ public class LocationService extends Service {
             mClient.updateBusLocation(location);
         }
     }
-
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case REQUEST_BUS_LOCATION:
-                    requestBusLocation();
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
 
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override

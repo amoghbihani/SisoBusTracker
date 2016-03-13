@@ -11,6 +11,6 @@
     <string name="yes_im_in">Yes, I\'m in</string>
     <string name="please_enable_gps">Please enable location service to use the app.</string>
     <string name="awesome">You\'re Awesome!</string>
-    <string name="sharing_on">Your location is being shared</string>
+    <string name="sharing_on">Sharing bus location</string>
     <string name="cancel_sharing">Stop sharing</string>
 </resources>
