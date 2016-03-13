@@ -19,8 +19,8 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.batti.nil.sisobustracker.common.MathUtils;
-import com.batti.nil.sisobustracker.location.BusLocation;
 import com.batti.nil.sisobustracker.location.LocationService;
+import com.firebase.client.Firebase;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -29,13 +29,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.parse.Parse;
-import com.parse.ParseObject;
 
 public class MapsActivity extends FragmentActivity {
     private static final String TAG = "MapsActivity";
-    private static final String APPLICATION_ID = "dqRUCRTKgKIqhgMKOE096W85NmPxj9kfRXAFYMrH";
-    private static final String CLIENT_ID = "SUi9RPni3ihmaUThh9lx9NMuUERKDw08miLjtxG6";
     private static final LatLng OFFICE = new LatLng(12.980253, 77.697375);
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -51,13 +47,7 @@ public class MapsActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
-        try {
-            ParseObject.registerSubclass(BusLocation.class);
-            Parse.initialize(this, APPLICATION_ID, CLIENT_ID);
-        } catch (IllegalStateException e) {
-            Log.d(TAG, "Parse already initialized");
-        }
+        Firebase.setAndroidContext(this);
 
         startUp();
     }
@@ -135,10 +125,6 @@ public class MapsActivity extends FragmentActivity {
                     bounds, size.x, size.y - 200, 50));
         } else {
             mUserMarker.setPosition(latLng);
-        }
-
-        if (!mIsWaiting && mBusMarker != null) {
-            mBusMarker.setPosition(latLng);
         }
     }
 

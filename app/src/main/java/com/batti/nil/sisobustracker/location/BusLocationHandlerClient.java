@@ -6,6 +6,4 @@ public abstract class BusLocationHandlerClient {
     public void onResponseReceived(Location location) { }
 
     public void onErrorReceivingResponse() { }
-
-    public void onErrorSendingRequest() { }
 }
