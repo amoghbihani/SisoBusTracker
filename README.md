@@ -5,7 +5,7 @@ It is crowd source location tracking. All the users who are inside the bus can s
 The app has two options: Waiting and Inside.
 When the user is "waiting", he will get the bus location, if available, and when user is "inside", his location would be shared with others who are "waiting".
 
-This application uses Facebook Parse as cloud backend for storing and sharing bus location.
+This application uses Firebase as cloud backend for storing and sharing bus location.
 
 Following screenshot shows the application UI.
 
