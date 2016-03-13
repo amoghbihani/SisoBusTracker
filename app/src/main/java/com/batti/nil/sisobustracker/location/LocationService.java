@@ -126,8 +126,8 @@ public class LocationService extends Service {
                 PendingIntent.FLAG_CANCEL_CURRENT);
 
         Notification.Builder builder = new Notification.Builder(this)
-                .setContentTitle(getString(R.string.awesome))
-                .setContentText(getString(R.string.sharing_on))
+                .setContentTitle(getString(R.string.sharing_on))
+                .setContentText(getString(R.string.awesome))
                 .setSmallIcon(R.drawable.notification_badge)
                 .setContentIntent(pendingIntent);
 
