@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Siso Bus Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <script src="scripts/firebase.js"></script>
+    <script src="scripts/googleMaps.js" async defer></script>
+    <link rel="stylesheet" type="text/css" href="styles/main.css">
+  </head>
+  <body>
+    <script type="text/javascript" src="scripts/main.js"></script>
+    <div id="topBar">
+      <table id="routeNumberContainer">
+        <tr><td>
+          <div id="routeNumber">R</div>
+        </td></tr>
+      </table>
+      <table id="stateButtonContainer">
+        <tr><td>
+          <input id="waitingButton" type="radio" name="state" onchange="onStateChange(true)"> Waiting
+          <input id="insideButton" type="radio" name="state" onchange="onStateChange(false)"> Inside
+        </td></tr>
+      </table>
+    </div>
+    <div id="map"></div>
+  </body>
+</html>
