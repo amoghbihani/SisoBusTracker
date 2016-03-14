@@ -2,29 +2,8 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-}
-td {
-  text-align: center;
+  font-family: sans-serif;
 }
 #map {
   height: 92%;
-}
-#topBar {
-  width: 96%;
-  height: 5%;
-  display: inline-block;
-  padding: 2%;
-  vertical-align: middle;
-  background: #2196F3;
-  font-family: sans-serif;
-}
-#routeNumberContainer {
-  height: 100%;
-  color: white;
-  float: left;
-}
-#stateButtonContainer {
-  height: 100%;
-  color: white;
-  float: right;
 }

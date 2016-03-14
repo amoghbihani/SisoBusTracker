@@ -52,7 +52,7 @@ function getUserLocation() {
     return;
   }
 
-  mUserLocationListener = navigator.geolocation.watchPosition(setUserLocation);
+  mUserLsocationListener = navigator.geolocation.watchPosition(setUserLocation);
 }
 
 function setUserLocation(position) {
@@ -107,5 +107,27 @@ function loadUi() {
 }
 
 function onStateChange(isWaiting) {
-  mIsWaiting = isWaiting;
+  if (isWaiting) {
+    mIsWaiting = true;
+  } else {
+    showInsideConfirmation(true)
+  }
+}
+
+function showInsideConfirmation(show) {
+  var dialog = document.getElementById("insideConfirmation");
+  if (show) {
+    dialog.className = "visible";
+  } else {
+    dialog.className = "invisible";
+  }
+}
+
+function onConfirmation(value) {
+  if (value) {
+    mIsWaiting = false;
+  } else {
+    document.getElementById("waitingButton").checked = "checked";
+  }
+  showInsideConfirmation(false);
 }

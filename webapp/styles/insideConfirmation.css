@@ -1,0 +1,28 @@
+.invisible {
+  display: none;
+}
+.visible {
+  display: inline;
+}
+#insideConfirmation {
+  padding-left: 5%;
+  padding-right: 5%;
+  margin: 5%;
+  position: fixed;
+  top: 20%;
+  background: #fafafa;
+}
+#insideConfirmation h4 {
+  color: #2196F3;
+}
+#insideConfirmationButtonContainer {
+  float: right;
+  color: #fafafa;
+  border-spacing: 10px 10px;
+}
+#insideConfirmationButtonContainer td {
+  border: 2px solid #2196F3;
+  background: #2196F3;
+  border-radius: 2px;
+  padding: 2px;
+}

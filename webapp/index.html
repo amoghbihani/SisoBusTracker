@@ -3,9 +3,12 @@
   <head>
     <title>Siso Bus Tracker</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
     <script src="scripts/firebase.js"></script>
     <script src="scripts/googleMaps.js" async defer></script>
     <link rel="stylesheet" type="text/css" href="styles/main.css">
+    <link rel="stylesheet" type="text/css" href="styles/topBar.css">
+    <link rel="stylesheet" type="text/css" href="styles/insideConfirmation.css">
   </head>
   <body>
     <script type="text/javascript" src="scripts/main.js"></script>
@@ -23,5 +26,15 @@
       </table>
     </div>
     <div id="map"></div>
+    <div id="insideConfirmation" class="invisible">
+        <h4>Are you sure?</h4>
+        <p>Please select this only if you are inside the bus otherwise others will get wrong location.</p>
+        <table id="insideConfirmationButtonContainer">
+            <tr>
+              <td onclick="onConfirmation(false)">Cancel</td>
+              <td onclick="onConfirmation(true)">Yes, I'm in</td>
+            </tr>
+        </table>
+    </div>
   </body>
 </html>
