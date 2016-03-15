@@ -10,7 +10,11 @@ var mOfficeMarker;
 var mUserMarker;
 var mBusMarker;
 
-var mUserLocationListener;
+var mUserLatitude;
+var mUserLongitude;
+
+var mBusLatitude;
+var mBusLongitude;
 
 function initMap() {
   loadUi();
@@ -21,7 +25,9 @@ function initMap() {
 
   var mapOptions = {
     center: mOfficeLocation,
-    zoom: 15
+    zoom: 15,
+    disableDefaultUI: true,
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
   };
   mMap = new google.maps.Map(document.getElementById('map'), mapOptions);
 
@@ -52,41 +58,47 @@ function getUserLocation() {
     return;
   }
 
-  mUserLsocationListener = navigator.geolocation.watchPosition(setUserLocation);
+  navigator.geolocation.watchPosition(onGetUserLocation);
 }
 
-function setUserLocation(position) {
-  var latitude = position.coords.latitude;
-  var longitude = position.coords.longitude;
+function onGetUserLocation(position) {
+  mUserLatitude = position.coords.latitude;
+  mUserLongitude = position.coords.longitude;
+  setUserLocation();
+}
+
+function setUserLocation() {
   var shouldResizeBounds = false;
   if (mUserMarker.getPosition() == null) {
     shouldResizeBounds = true;
   }
-  mUserMarker.setPosition(new google.maps.LatLng(latitude, longitude));
+  mUserMarker.setPosition(new google.maps.LatLng(mUserLatitude, mUserLongitude));
   if (shouldResizeBounds) {
     mMapBounds.extend(mUserMarker.getPosition());
     updateMapBounds();
   }
 
   if (!mIsWaiting) {
-    updateBusLocation(latitude, longitude);
+    updateBusLocation(mUserLatitude, mUserLongitude);
   }
 }
 
 function getBusLocation() {
   mFirebaseRef.child(mRouteNumber).on("value", function(snapshot) {
-    setBusLocation(snapshot.val().latitude, snapshot.val().longitude);
+    mBusLatitude = snapshot.val().latitude;
+    mBusLongitude = snapshot.val().longitude;
+    setBusLocation();
   }, function(error) {
     console.log(error.code);
   });
 }
 
-function setBusLocation(latitude, longitude) {
+function setBusLocation() {
   var shouldResizeBounds = false;
   if (mBusMarker.getPosition() == null) {
     shouldResizeBounds = true;
   }
-  mBusMarker.setPosition(new google.maps.LatLng(latitude, longitude));
+  mBusMarker.setPosition(new google.maps.LatLng(mBusLatitude, mBusLongitude));
   if (shouldResizeBounds) {
     mMapBounds.extend(mBusMarker.getPosition());
     updateMapBounds();
@@ -109,6 +121,7 @@ function loadUi() {
 function onStateChange(isWaiting) {
   if (isWaiting) {
     mIsWaiting = true;
+    document.getElementById("waitingButton").checked = "checked";
   } else {
     showInsideConfirmation(true)
   }
@@ -126,6 +139,7 @@ function showInsideConfirmation(show) {
 function onConfirmation(value) {
   if (value) {
     mIsWaiting = false;
+    document.getElementById("insideButton").checked = "checked";
   } else {
     document.getElementById("waitingButton").checked = "checked";
   }

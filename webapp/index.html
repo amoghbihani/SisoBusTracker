@@ -19,10 +19,14 @@
         </td></tr>
       </table>
       <table id="stateButtonContainer">
-        <tr><td>
-          <input id="waitingButton" type="radio" name="state" onchange="onStateChange(true)"> Waiting
-          <input id="insideButton" type="radio" name="state" onchange="onStateChange(false)"> Inside
-        </td></tr>
+        <tr>
+          <td onclick="onStateChange(true)">
+            <input id="waitingButton" type="radio" name="state"> Waiting
+          </td>
+          <td onclick="onStateChange(false)">
+            <input id="insideButton" type="radio" name="state"> Inside
+          </td>
+        </tr>
       </table>
     </div>
     <div id="map"></div>
