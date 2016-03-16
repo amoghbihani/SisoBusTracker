@@ -1,0 +1,9 @@
+{
+  "firebase": "sisobustracker",
+  "public": ".",
+  "ignore": [
+    "firebase.json",
+    "**/.*",
+    "**/node_modules/**"
+  ]
+}
