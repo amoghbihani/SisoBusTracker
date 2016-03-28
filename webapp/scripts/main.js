@@ -16,6 +16,11 @@ var mUserLongitude;
 var mBusLatitude;
 var mBusLongitude;
 
+var mTimeOut = setTimeout(function() {
+  alert("Server Unreachable :(\nLet's retry");
+  window.location.reload(true);
+}, 5000);
+
 function initMap() {
   loadUi();
 
@@ -58,13 +63,18 @@ function getUserLocation() {
     return;
   }
 
-  navigator.geolocation.watchPosition(onGetUserLocation);
+  navigator.geolocation.watchPosition(onGetUserLocation, onLocationError);
 }
 
 function onGetUserLocation(position) {
   mUserLatitude = position.coords.latitude;
   mUserLongitude = position.coords.longitude;
   setUserLocation();
+}
+
+function onLocationError(error) {
+  alert("Please switch on GPS.");
+  window.location.reload(false);
 }
 
 function setUserLocation() {
@@ -114,8 +124,10 @@ function updateMapBounds() {
 }
 
 function loadUi() {
+  clearTimeout(mTimeOut);
   document.getElementById("routeNumber").innerHTML = "R:" + mRouteNumber;
   document.getElementById("waitingButton").checked = "checked";
+  document.getElementById("loading").className = "invisible";
 }
 
 function onStateChange(isWaiting) {
